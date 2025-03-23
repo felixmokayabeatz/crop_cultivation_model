@@ -548,7 +548,6 @@ def run_complete_simulation():
         yield_comparison[scenario_name]["Baseline"] = baseline_yield
         simulation_results[scenario_name]["Baseline"] = baseline_results
         
-        # Optimize planting date
         best_date, best_yield = optimize_planting_date(corn_model, weather_data, planting_dates)
         opt_date_results = corn_model.simulate_season(weather_data, best_date)
         
@@ -557,14 +556,12 @@ def run_complete_simulation():
         yield_comparison[scenario_name]["Optimized Planting"] = best_yield
         simulation_results[scenario_name]["Optimized Planting"] = opt_date_results
         
-        # Optimize irrigation with baseline date
         optimal_schedule, opt_irr_yield = optimize_irrigation(corn_model, weather_data, baseline_date)
         opt_irr_results = corn_model.simulate_season(weather_data, baseline_date, optimal_schedule)
         
         yield_comparison[scenario_name]["Optimized Irrigation"] = opt_irr_yield
         simulation_results[scenario_name]["Optimized Irrigation"] = opt_irr_results
         
-        # Combined optimization (planting date + irrigation)
         combined_schedule, combined_yield = optimize_irrigation(corn_model, weather_data, best_date)
         combined_results = corn_model.simulate_season(weather_data, best_date, combined_schedule)
         
@@ -573,25 +570,19 @@ def run_complete_simulation():
     
     return weather_scenarios, yield_comparison, simulation_results
 
-# Example usage
 if __name__ == "__main__":
-    # Run complete simulation
     weather_scenarios, yield_comparison, simulation_results = run_complete_simulation()
     
-    # Create plots
     for scenario in weather_scenarios:
-        # Plot weather data
         weather_fig = plot_weather_data(weather_scenarios[scenario], title=f"{scenario} Weather")
         weather_fig.savefig(f"{scenario}_weather.png")
-        
-        # Plot results for each strategy
+
         for strategy in simulation_results[scenario]:
             results = simulation_results[scenario][strategy]
             if len(results) > 0:
                 growth_fig = plot_crop_growth(results, title=f"{scenario} - {strategy}")
                 growth_fig.savefig(f"{scenario}_{strategy}_growth.png")
-    
-    # Create yield comparison heatmap
+
     heatmap_fig = create_yield_heatmap(yield_comparison, title="Crop Yield Comparison (%)")
     heatmap_fig.savefig("yield_comparison.png")
     
